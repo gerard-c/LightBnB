@@ -1,5 +1,5 @@
-const properties = require('./json/properties.json');
-const users = require('./json/users.json');
+// const properties = require('./json/properties.json');
+// const users = require('./json/users.json');
 
 const { Pool } = require('pg');
 
@@ -27,7 +27,7 @@ const getUserWithEmail = (email) => {
     `, [email])
     .then(res => res.rows.length > 0 ? res.rows[0] : null)
     .catch(err => console.log(err.message));
-}
+};
 exports.getUserWithEmail = getUserWithEmail;
 
 /**
@@ -44,7 +44,7 @@ const getUserWithId = (id) => {
   `, [id])
     .then(res => res.rows.length > 0 ? res.rows[0] : null)
     .catch(err => console.log(err.message));
-}
+};
 exports.getUserWithId = getUserWithId;
 
 
@@ -58,14 +58,14 @@ const addUser = (user) => {
   INSERT INTO users (name, email, password)
   VALUES ($1, $2, $3)
   RETURNING *;
-  `
+  `;
 
   const values = [user.name, user.email, user.password];
 
   return pool
     .query(queryString, values)
     .catch(err => console.log(err.message));
-}
+};
 exports.addUser = addUser;
 
 /// Reservations
@@ -122,16 +122,16 @@ const getAllProperties = (options, limit = 10) => {
 
   if (options.minimum_price_per_night) {
     queryString += `${!queryParams.length ? 'WHERE' : 'AND'}`;
-    queryParams.push(options.minimum_price_per_night*100);
+    queryParams.push(options.minimum_price_per_night * 100);
     queryString += ` properties.cost_per_night >= $${queryParams.length} `;
   }
 
   if (options.maximum_price_per_night) {
     queryString += `${!queryParams.length ? 'WHERE' : 'AND'}`;
-    queryParams.push(options.maximum_price_per_night*100);
+    queryParams.push(options.maximum_price_per_night * 100);
     queryString += ` properties.cost_per_night <= $${queryParams.length} `;
   }
-  
+
   if (options.minimum_rating) {
     queryString += `${!queryParams.length ? 'WHERE' : 'AND'}`;
     queryParams.push(options.minimum_rating);
@@ -161,18 +161,17 @@ exports.getAllProperties = getAllProperties;
  * @param {{}} property An object containing all of the property details.
  * @return {Promise<{}>} A promise to the property.
  */
-const addProperty = function (property) {
+const addProperty = (property) => {
   const queryString = `
   INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, parking_spaces, number_of_bathrooms, number_of_bedrooms, country, street, city, province, post_code)
   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
   RETURNING *;
-  `
+  `;
 
-  const values = [property.owner_id, property.title, property.description, property.thumbnail_photo_url, property.cover_photo_url, property.cost_per_night*100, property.parking_spaces, property.number_of_bathrooms, property.number_of_bedrooms, property.country, property.street, property.city, property.province, property.post_code];
+  const values = [property.owner_id, property.title, property.description, property.thumbnail_photo_url, property.cover_photo_url, property.cost_per_night * 100, property.parking_spaces, property.number_of_bathrooms, property.number_of_bedrooms, property.country, property.street, property.city, property.province, property.post_code];
 
   return pool
     .query(queryString, values)
-    .then(res => console.log(res))
     .catch(err => console.log(err.message));
-}
+};
 exports.addProperty = addProperty;
