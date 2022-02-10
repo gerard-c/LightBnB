@@ -26,7 +26,9 @@ const getUserWithEmail = function (email) {
     WHERE email = $1;
     `, [email])
     .then(res => res.rows[0])
-    .catch(err => null);
+    .catch(err => {
+      console.log(err.message);
+    });
 }
 exports.getUserWithEmail = getUserWithEmail;
 
@@ -43,7 +45,9 @@ const getUserWithId = function (id) {
   WHERE id = $1;
   `, [id])
   .then(res => res.rows[0])
-  .catch(err => null);
+  .catch(err => {
+    console.log(err.message);
+  });
 }
 exports.getUserWithId = getUserWithId;
 
@@ -54,10 +58,22 @@ exports.getUserWithId = getUserWithId;
  * @return {Promise<{}>} A promise to the user.
  */
 const addUser = function (user) {
-  const userId = Object.keys(users).length + 1;
-  user.id = userId;
-  users[userId] = user;
-  return Promise.resolve(user);
+  const queryString = `
+  INSERT INTO users (name, email, password)
+  VALUES ($1, $2, $3)
+  RETURNING *;
+  `
+  const username = user.name;
+  const email = user.email;
+  const password = user.password;
+
+  const values = [username, email, password];
+
+  return pool
+  .query(queryString, values)
+  .catch(err => {
+    console.log(err.message);
+  });
 }
 exports.addUser = addUser;
 
